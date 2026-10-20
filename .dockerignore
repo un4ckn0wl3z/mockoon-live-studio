@@ -2,6 +2,7 @@
 .gitignore
 .history
 .test-runtime
+.upstream
 node_modules
 npm-debug.log*
 compose*.yaml

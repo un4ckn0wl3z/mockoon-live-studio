@@ -1,6 +1,21 @@
 # Mockoon Live Studio
 
-A self-hosted web editor for Mockoon environment files. It saves changes atomically, keeps local version history, and can push most configuration changes to a running Mockoon CLI through its Admin API without a restart.
+A self-hosted web editor for Mockoon environment files. It uses Mockoon's native environment JSON model, saves changes atomically, keeps local version history, and synchronizes them to a running Mockoon CLI.
+
+## Mockoon Desktop compatibility
+
+You can export an environment from Mockoon Desktop and either import it in Live Studio or map the same JSON file into the Compose stack. Live Studio preserves unknown properties so a file can move back to Desktop without stripping fields added by newer Mockoon releases.
+
+The visual editor covers the current CLI environment model:
+
+- HTTP, CRUD, and WebSocket routes, all Mockoon HTTP methods, response modes, default responses, and streaming settings
+- Inline, file, and data-bucket bodies; Handlebars/Faker helper insertion
+- Response headers, all rule targets/operators, AND/OR matching, inversion, and rule ordering
+- Folders, data buckets, callbacks and callback invocations
+- Environment headers, latency, automatic CORS, proxy headers/settings, TLS, hostname, port, and endpoint prefix
+- Import/export, raw JSON fallback, automatic snapshots, restore, and live traffic logs
+
+The raw JSON editor is retained for forward compatibility. Properties unknown to this Live Studio build remain untouched.
 
 ## Start
 
@@ -23,7 +38,7 @@ You can also configure the Admin URL and token from **Environment settings**. Th
 mockoon-cli start --data D:\path\to\mockoon.json --watch
 ```
 
-Use `--watch` as a fallback when live Admin API push is unavailable. Mockoon CLI's Admin API is enabled by default.
+Mockoon CLI's Admin API is enabled by default. It can hot-update response content and several environment settings, but Mockoon itself cannot hot-patch route paths/methods, newly added routes, data buckets, or callbacks. Use `--watch` for these structural changes; it automatically restarts the mock when the environment file changes.
 
 ## Docker Compose (recommended)
 
@@ -65,7 +80,7 @@ docker compose down
 docker compose down -v
 ```
 
-Studio saves the mapped JSON file first, then sends it to the Mockoon Admin API. `MOCKOON_AUTO_PUSH=true` is enabled in Compose, so route and response changes take effect without restarting Mockoon CLI. Port, hostname, and TLS changes still require a container restart because Mockoon cannot apply those settings at runtime:
+Studio saves the mapped JSON file first, then sends it to the Mockoon Admin API. `MOCKOON_AUTO_PUSH=true` is enabled in Compose, so supported response changes are applied immediately. The Compose stack also runs CLI with `--watch --polling-interval 500`; structural changes restart the mock automatically, normally within about half a second. Docker port publishing remains controlled by Compose, so port, hostname, and TLS changes may still require adjusting Compose and restarting the container:
 
 ```powershell
 docker compose restart mockoon
@@ -96,6 +111,10 @@ docker run --rm -p 4173:4173 `
 | `STUDIO_HOST` | `127.0.0.1` | Studio bind address |
 | `STUDIO_PORT` | `4173` | Studio port |
 | `STUDIO_HISTORY_DIR` | `.history` | Directory containing automatic snapshots |
+
+### Is `MOCKOON_ADMIN_API_TOKEN` required?
+
+No, Mockoon can run its Admin API without a token. It is strongly recommended whenever the Admin API is reachable by anything other than your own machine. The Compose example configures a token by default and shares it only between the two containers. If you intentionally remove it, update the Compose health check and Studio setting consistently.
 
 ## Safety
 

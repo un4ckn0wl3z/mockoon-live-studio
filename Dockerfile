@@ -6,7 +6,7 @@ ENV NODE_ENV=production \
     STUDIO_HOST=0.0.0.0 \
     STUDIO_PORT=4173
 
-COPY --chown=node:node package.json server.js README.md ./
+COPY --chown=node:node package.json server.js README.md THIRD_PARTY_NOTICES.md ./
 COPY --chown=node:node public ./public
 COPY --chown=node:node data ./data
 

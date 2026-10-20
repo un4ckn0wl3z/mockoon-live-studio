@@ -3,6 +3,7 @@ import { createReadStream } from 'node:fs';
 import { access, mkdir, readFile, readdir, rename, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { normalizeEnvironment, validateEnvironmentSchema } from './public/mockoon-schema.js';
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(rootDir, 'public');
@@ -73,21 +74,6 @@ async function readJsonBody(req) {
   }
 }
 
-function validateEnvironment(environment) {
-  const errors = [];
-  if (!environment || typeof environment !== 'object' || Array.isArray(environment)) errors.push('Environment must be a JSON object.');
-  if (!environment?.uuid || typeof environment.uuid !== 'string') errors.push('Environment uuid is required.');
-  if (!environment?.name || typeof environment.name !== 'string') errors.push('Environment name is required.');
-  if (!Array.isArray(environment?.routes)) errors.push('Environment routes must be an array.');
-  environment?.routes?.forEach((route, index) => {
-    if (!route.uuid) errors.push(`Route ${index + 1} is missing uuid.`);
-    if (!route.method) errors.push(`Route ${index + 1} is missing method.`);
-    if (typeof route.endpoint !== 'string') errors.push(`Route ${index + 1} is missing endpoint.`);
-    if (!Array.isArray(route.responses) || route.responses.length === 0) errors.push(`Route ${index + 1} must have at least one response.`);
-  });
-  return errors;
-}
-
 async function ensureDirectories() {
   await mkdir(path.dirname(dataFile), { recursive: true });
   await mkdir(historyDir, { recursive: true });
@@ -95,7 +81,7 @@ async function ensureDirectories() {
 
 async function loadEnvironment() {
   const source = await readFile(dataFile, 'utf8');
-  return JSON.parse(source);
+  return normalizeEnvironment(JSON.parse(source));
 }
 
 async function snapshotCurrent(reason = 'autosave') {
@@ -254,7 +240,8 @@ async function handleApi(req, res, url) {
   if (req.method === 'PUT' && url.pathname === '/api/environment') {
     const body = await readJsonBody(req);
     const environment = body.environment ?? body;
-    const errors = validateEnvironment(environment);
+    normalizeEnvironment(environment);
+    const errors = validateEnvironmentSchema(environment);
     if (errors.length) return sendJson(res, 422, { ok: false, error: 'Environment validation failed.', errors });
     const snapshot = await writeEnvironment(environment, body.reason || 'save');
     let live = null;
@@ -298,7 +285,8 @@ async function handleApi(req, res, url) {
     if (!id.endsWith('.json')) return sendError(res, 400, 'Invalid history entry.');
     const source = await readFile(path.join(historyDir, id), 'utf8');
     const environment = JSON.parse(source);
-    const errors = validateEnvironment(environment);
+    normalizeEnvironment(environment);
+    const errors = validateEnvironmentSchema(environment);
     if (errors.length) return sendJson(res, 422, { ok: false, error: 'History entry is invalid.', errors });
     await writeEnvironment(environment, 'before-restore');
     return sendJson(res, 200, { ok: true, environment, restoredFrom: id });

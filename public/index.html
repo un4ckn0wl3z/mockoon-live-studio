@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0b0d12" />
     <title>Mockoon Live Studio</title>
-    <link rel="stylesheet" href="/styles.css?v=1.0.1" />
+    <link rel="stylesheet" href="/styles.css?v=2.0.0" />
   </head>
   <body>
     <div class="app-shell">
@@ -47,7 +47,10 @@
             <span class="eyebrow">Environment</span>
             <h1 id="environment-name">—</h1>
           </div>
-          <button class="icon-button" id="add-route-button" type="button" aria-label="Add route" title="Add route">+</button>
+          <div class="heading-actions">
+            <button class="icon-button" id="add-folder-button" type="button" aria-label="Add folder" title="Add folder">⌑</button>
+            <button class="icon-button" id="add-route-button" type="button" aria-label="Add route" title="Add route">+</button>
+          </div>
         </div>
 
         <label class="search-box">
@@ -55,6 +58,13 @@
           <input id="route-search" type="search" placeholder="Filter routes…" autocomplete="off" />
           <kbd id="route-count">0</kbd>
         </label>
+
+        <div class="environment-nav" aria-label="Environment tools">
+          <button type="button" data-feature="databuckets"><span>◇</span>Data</button>
+          <button type="button" data-feature="callbacks"><span>↗</span>Callbacks</button>
+          <button type="button" data-feature="headers"><span>≡</span>Headers</button>
+          <button type="button" data-feature="proxy"><span>⇄</span>Proxy & TLS</button>
+        </div>
 
         <nav class="route-list" id="route-list" aria-label="Routes"></nav>
 
@@ -71,7 +81,13 @@
         <section class="editor-panel" id="route-editor">
           <div class="route-header">
             <div class="route-address">
+              <select id="route-type" class="route-type-select" aria-label="Route type">
+                <option value="http">HTTP</option>
+                <option value="crud">CRUD</option>
+                <option value="ws">WebSocket</option>
+              </select>
               <select id="route-method" class="method-select get" aria-label="HTTP method">
+                <option value="all">ALL</option>
                 <option value="get">GET</option>
                 <option value="post">POST</option>
                 <option value="put">PUT</option>
@@ -79,6 +95,13 @@
                 <option value="delete">DELETE</option>
                 <option value="head">HEAD</option>
                 <option value="options">OPTIONS</option>
+                <option value="propfind">PROPFIND</option>
+                <option value="proppatch">PROPPATCH</option>
+                <option value="move">MOVE</option>
+                <option value="copy">COPY</option>
+                <option value="mkcol">MKCOL</option>
+                <option value="lock">LOCK</option>
+                <option value="unlock">UNLOCK</option>
               </select>
               <div class="endpoint-input-wrap">
                 <span id="endpoint-prefix">/api/</span>
@@ -96,6 +119,12 @@
               <span>Description</span>
               <input id="route-documentation" type="text" placeholder="What does this endpoint do?" />
             </label>
+            <div class="route-advanced-row">
+              <label><span>Response mode</span><select id="route-response-mode"><option value="">Rules + default</option><option value="RANDOM">Random</option><option value="SEQUENTIAL">Sequential</option><option value="DISABLE_RULES">Default only</option><option value="FALLBACK">Fallback</option></select></label>
+              <label><span>Folder</span><select id="route-folder"><option value="">Root</option></select></label>
+              <label id="streaming-mode-field" class="hidden"><span>Streaming</span><select id="route-streaming-mode"><option value="">None</option><option value="UNICAST">Unicast</option><option value="BROADCAST">Broadcast</option></select></label>
+              <label id="streaming-interval-field" class="hidden"><span>Interval</span><div class="input-suffix"><input id="route-streaming-interval" type="number" min="0" /><span>ms</span></div></label>
+            </div>
           </div>
 
           <div class="editor-layout">
@@ -133,6 +162,7 @@
                 <button class="tab active" data-tab="body" type="button">Body</button>
                 <button class="tab" data-tab="headers" type="button">Headers <span id="headers-count">0</span></button>
                 <button class="tab" data-tab="rules" type="button">Rules <span id="rules-count">0</span></button>
+                <button class="tab" data-tab="callbacks" type="button">Callbacks <span id="callbacks-count">0</span></button>
                 <button class="tab" data-tab="options" type="button">Options</button>
               </div>
 
@@ -144,6 +174,9 @@
                     <button data-body-type="DATABUCKET" type="button">Data bucket</button>
                   </div>
                   <div>
+                    <select class="snippet-select" id="faker-snippet-select" aria-label="Insert template helper">
+                      <option value="">＋ Insert Faker/helper…</option>
+                    </select>
                     <button class="text-button" id="format-json-button" type="button">Format JSON</button>
                     <button class="text-button" id="copy-body-button" type="button">Copy</button>
                   </div>
@@ -158,8 +191,8 @@
                   <p>The path is resolved by the Mockoon CLI process. Files are not uploaded by Live Studio.</p>
                 </div>
                 <div id="bucket-body-editor" class="alternate-body-editor hidden">
-                  <label class="field"><span>Data bucket ID</span><input id="response-bucket-id" type="text" placeholder="Select or paste a bucket UUID" /></label>
-                  <p>Use the UUID of an existing data bucket in this environment.</p>
+                  <label class="field"><span>Data bucket</span><select id="response-bucket-id"><option value="">Select data bucket…</option></select></label>
+                  <p>Select reusable data managed under Environment → Data.</p>
                 </div>
               </div>
 
@@ -179,8 +212,14 @@
                 <div class="rule-table" id="rules-table"></div>
               </div>
 
+              <div class="tab-panel" data-panel="callbacks">
+                <div class="table-toolbar"><p>Invoke reusable callbacks after this response.</p><button class="mini-button" id="add-response-callback-button" type="button">＋ Add callback</button></div>
+                <div class="callback-invocations" id="response-callbacks-table"></div>
+              </div>
+
               <div class="tab-panel" data-panel="options">
                 <div class="option-grid">
+                  <label class="field hidden" id="crud-key-field"><span>CRUD object key</span><input id="response-crud-key" type="text" placeholder="id" /></label>
                   <label class="check-card"><input id="disable-templating" type="checkbox" /><span><b>Disable templating</b><small>Return the body without evaluating Handlebars helpers.</small></span></label>
                   <label class="check-card"><input id="fallback-404" type="checkbox" /><span><b>Fallback to 404</b><small>Return 404 when no response rule matches.</small></span></label>
                   <label class="check-card"><input id="send-file-as-body" type="checkbox" /><span><b>Send file as body</b><small>Read the selected file and send its contents.</small></span></label>
@@ -203,6 +242,17 @@
             <div><button class="button subtle" id="raw-cancel-button" type="button">Back to routes</button><button class="button primary" id="raw-apply-button" type="button">Apply JSON</button></div>
           </div>
           <textarea id="raw-json-editor" spellcheck="false"></textarea>
+        </section>
+
+        <section class="feature-panel hidden" id="feature-panel">
+          <div class="feature-panel-header">
+            <div><span class="eyebrow" id="feature-eyebrow">Environment</span><h2 id="feature-title">Data buckets</h2><p id="feature-description"></p></div>
+            <div><button class="button subtle" id="feature-back-button" type="button">Back to routes</button><button class="button primary" id="feature-add-button" type="button">Add</button></div>
+          </div>
+          <div class="feature-layout">
+            <aside class="feature-list" id="feature-list"></aside>
+            <div class="feature-editor" id="feature-editor"></div>
+          </div>
         </section>
       </main>
 
@@ -252,6 +302,6 @@
     </dialog>
 
     <div class="toast-region" id="toast-region" aria-live="polite"></div>
-    <script type="module" src="/app.js?v=1.0.1"></script>
+    <script type="module" src="/app.js?v=2.0.0"></script>
   </body>
 </html>

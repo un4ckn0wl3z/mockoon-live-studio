@@ -1,6 +1,6 @@
 {
   "uuid": "2b8f4ec5-e578-476c-90eb-7ca391b6cf34",
-  "lastMigration": 39,
+  "lastMigration": 33,
   "name": "Storefront API",
   "endpointPrefix": "api",
   "latency": 0,
@@ -20,6 +20,9 @@
   "proxyRemovePrefix": false,
   "proxyReqHeaders": [],
   "proxyResHeaders": [],
+  "cors": true,
+  "headers": [],
+  "folders": [],
   "routes": [
     {
       "uuid": "a4c2c34f-6e9b-4b3d-8d3c-5dc8a2f284dd",
@@ -46,9 +49,13 @@
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true,
-          "crudKey": ""
+          "crudKey": "id",
+          "callbacks": []
         }
-      ]
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     },
     {
       "uuid": "cf88fa74-e346-4194-a317-b0ac833dde0e",
@@ -75,9 +82,13 @@
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true,
-          "crudKey": ""
+          "crudKey": "id",
+          "callbacks": []
         }
-      ]
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [

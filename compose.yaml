@@ -13,6 +13,9 @@ services:
       - 0.0.0.0
       - --max-transaction-logs
       - "200"
+      - --watch
+      - --polling-interval
+      - "500"
     ports:
       - "${MOCKOON_BIND_ADDRESS:-127.0.0.1}:${MOCKOON_PORT:-3000}:3000"
     volumes:
