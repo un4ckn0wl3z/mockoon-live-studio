@@ -40,7 +40,7 @@ The repository defaults work without a `.env` file. Create one from `.env.exampl
 
 ## Start
 
-Requires Node.js 20+ and Mockoon CLI 9.6+ for live environment updates.
+Requires Node.js 20+. The Compose stack is tested and pinned to Mockoon CLI `9.9.0`.
 
 ```powershell
 npm start
@@ -90,6 +90,8 @@ MOCKOON_CONFIG_FILE=mockoon.json
 MOCKOON_ADMIN_API_TOKEN=replace-with-a-long-random-token
 ```
 
+Mockoon CLI defaults to the pinned `9.9.0` image even when no `.env` file exists. To upgrade deliberately, change `MOCKOON_CLI_VERSION` in `.env`, review the Mockoon migration notes, and test the exported environment before changing the default in `compose.yaml`.
+
 `MOCKOON_CONFIG_DIR` must be the directory containing the JSON file, not the JSON file itself. Both containers mount this directory at `/data`: Studio needs write access while Mockoon CLI only receives a read-only mount. Mounting the containing directory also allows Studio's atomic save operation to replace the JSON file safely.
 
 Useful commands:
@@ -132,6 +134,9 @@ docker run --rm -p 4173:4173 `
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
+| `MOCKOON_CLI_VERSION` | `9.9.0` | Pinned Mockoon CLI Docker image version |
+| `MOCKOON_CONFIG_DIR` | `./data` | Host directory mounted by Compose |
+| `MOCKOON_CONFIG_FILE` | `mockoon.json` | Environment filename used by Compose |
 | `MOCKOON_DATA_FILE` | `data/mockoon.json` | Environment JSON to edit |
 | `MOCKOON_ADMIN_URL` | `http://127.0.0.1:3000` | Running mock base URL |
 | `MOCKOON_ADMIN_TOKEN` | empty | Admin API bearer token |

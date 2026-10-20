@@ -2,7 +2,7 @@ name: mockoon-live-studio
 
 services:
   mockoon:
-    image: mockoon/cli:${MOCKOON_CLI_VERSION:-latest}
+    image: mockoon/cli:${MOCKOON_CLI_VERSION:-9.9.0}
     restart: unless-stopped
     command:
       - --data
