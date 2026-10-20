@@ -17,6 +17,27 @@ The visual editor covers the current CLI environment model:
 
 The raw JSON editor is retained for forward compatibility. Properties unknown to this Live Studio build remain untouched.
 
+## Interface overview
+
+![Annotated overview of the Mockoon Live Studio interface](docs/images/live-studio-overview.svg)
+
+1. Use the environment tools to manage data buckets, callbacks, shared headers, proxy settings, and TLS.
+2. Select or create a route, then configure its type, HTTP method, endpoint, response mode, and folder.
+3. Edit response bodies, headers, matching rules, callbacks, and options. The helper menu inserts Faker and request templates.
+4. Changes autosave to `data/mockoon.json`. **Push live** sends supported changes to the Admin API immediately; CLI file watching reloads structural changes automatically.
+
+## Quick start
+
+1. Clone the repository and enter its directory.
+2. Run `docker compose up -d --build --wait`.
+3. Open Live Studio at `http://127.0.0.1:4173`.
+4. Open the mock API at `http://127.0.0.1:3000/api/products`.
+5. Edit the environment in Live Studio, verify the mock response, then commit `data/mockoon.json` when ready.
+
+![Live Studio edit, sync, version, and deploy workflow](docs/images/live-studio-workflow.svg)
+
+The repository defaults work without a `.env` file. Create one from `.env.example` only when you need different ports, a different config directory, or a custom Admin API token.
+
 ## Start
 
 Requires Node.js 20+ and Mockoon CLI 9.6+ for live environment updates.
