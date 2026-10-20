@@ -8,7 +8,7 @@ import { normalizeEnvironment, validateEnvironmentSchema } from './public/mockoo
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(rootDir, 'public');
 const historyDir = path.resolve(process.env.STUDIO_HISTORY_DIR || path.join(rootDir, '.history'));
-const dataFile = path.resolve(process.env.MOCKOON_DATA_FILE || path.join(rootDir, 'data', 'sample-environment.json'));
+const dataFile = path.resolve(process.env.MOCKOON_DATA_FILE || path.join(rootDir, 'data', 'mockoon.json'));
 const host = process.env.STUDIO_HOST || '127.0.0.1';
 const port = Number(process.env.STUDIO_PORT || 4173);
 const maxBodyBytes = 15 * 1024 * 1024;

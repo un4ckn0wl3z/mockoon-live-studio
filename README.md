@@ -22,20 +22,26 @@ The raw JSON editor is retained for forward compatibility. Properties unknown to
 Requires Node.js 20+ and Mockoon CLI 9.6+ for live environment updates.
 
 ```powershell
-$env:MOCKOON_DATA_FILE = 'D:\path\to\mockoon.json'
+npm start
+```
+
+This opens the repository's `data/mockoon.json` by default. Open `http://127.0.0.1:4173`.
+
+To override the file or connect to a separately running CLI:
+
+```powershell
+$env:MOCKOON_DATA_FILE = 'D:\path\to\another-mockoon.json'
 $env:MOCKOON_ADMIN_URL = 'http://127.0.0.1:3000'
 $env:MOCKOON_ADMIN_TOKEN = 'your-admin-token'
 npm start
 ```
-
-Open `http://127.0.0.1:4173`.
 
 You can also configure the Admin URL and token from **Environment settings**. The token stays in server memory and is never written to disk.
 
 ## Run Mockoon CLI
 
 ```powershell
-mockoon-cli start --data D:\path\to\mockoon.json --watch
+mockoon-cli start --data .\data\mockoon.json --watch
 ```
 
 Mockoon CLI's Admin API is enabled by default. It can hot-update response content and several environment settings, but Mockoon itself cannot hot-patch route paths/methods, newly added routes, data buckets, or callbacks. Use `--watch` for these structural changes; it automatically restarts the mock when the environment file changes.
@@ -47,14 +53,15 @@ The included Compose stack starts both services:
 - `studio`: this browser editor on `http://127.0.0.1:4173`
 - `mockoon`: the official Mockoon CLI image on `http://127.0.0.1:3000`
 
-Copy the example settings and start the stack:
+Start the stack directly with the repository defaults:
 
 ```powershell
-Copy-Item .env.example .env
 docker compose up -d --build --wait
 ```
 
-The default setup uses `data/sample-environment.json`. To use your own config, edit `.env`:
+Copy `.env.example` to `.env` only when you want to override the defaults.
+
+The default setup uses the version-controlled `data/mockoon.json`. No environment variable or `.env` file is required for the default repository layout. To use another config, edit `.env`:
 
 ```dotenv
 MOCKOON_CONFIG_DIR=D:/mocks/store-api
@@ -104,7 +111,7 @@ docker run --rm -p 4173:4173 `
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `MOCKOON_DATA_FILE` | `data/sample-environment.json` | Environment JSON to edit |
+| `MOCKOON_DATA_FILE` | `data/mockoon.json` | Environment JSON to edit |
 | `MOCKOON_ADMIN_URL` | `http://127.0.0.1:3000` | Running mock base URL |
 | `MOCKOON_ADMIN_TOKEN` | empty | Admin API bearer token |
 | `MOCKOON_AUTO_PUSH` | `false` | Push after every save |

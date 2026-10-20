@@ -26,7 +26,7 @@ async function waitForServer(child) {
 
 test('loads, validates, saves, and versions a Mockoon environment', async (t) => {
   await mkdir(testDir, { recursive: true });
-  await copyFile(path.join(projectDir, 'data', 'sample-environment.json'), testDataFile);
+  await copyFile(path.join(projectDir, 'data', 'mockoon.json'), testDataFile);
   const child = spawn(process.execPath, ['server.js'], {
     cwd: projectDir,
     env: { ...process.env, STUDIO_PORT: '42991', MOCKOON_DATA_FILE: testDataFile, STUDIO_HISTORY_DIR: path.join(testDir, 'history') },

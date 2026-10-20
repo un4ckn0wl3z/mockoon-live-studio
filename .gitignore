@@ -1,6 +1,6 @@
 .history/
 data/*.json
-!data/sample-environment.json
+!data/mockoon.json
 .env
 .test-runtime/
 .upstream/

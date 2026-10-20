@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     command:
       - --data
-      - /data/${MOCKOON_CONFIG_FILE:-sample-environment.json}
+      - /data/${MOCKOON_CONFIG_FILE:-mockoon.json}
       - --port
       - "3000"
       - --hostname
@@ -52,7 +52,7 @@ services:
     environment:
       STUDIO_HOST: 0.0.0.0
       STUDIO_PORT: 4173
-      MOCKOON_DATA_FILE: /data/${MOCKOON_CONFIG_FILE:-sample-environment.json}
+      MOCKOON_DATA_FILE: /data/${MOCKOON_CONFIG_FILE:-mockoon.json}
       MOCKOON_ADMIN_URL: http://mockoon:3000
       MOCKOON_ADMIN_TOKEN: ${MOCKOON_ADMIN_API_TOKEN:-mockoon-local-admin-change-me}
       MOCKOON_AUTO_PUSH: "true"
