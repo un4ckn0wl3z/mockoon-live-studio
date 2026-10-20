@@ -1,0 +1,80 @@
+name: mockoon-live-studio
+
+services:
+  mockoon:
+    image: mockoon/cli:${MOCKOON_CLI_VERSION:-latest}
+    restart: unless-stopped
+    command:
+      - --data
+      - /data/${MOCKOON_CONFIG_FILE:-sample-environment.json}
+      - --port
+      - "3000"
+      - --hostname
+      - 0.0.0.0
+      - --max-transaction-logs
+      - "200"
+    ports:
+      - "${MOCKOON_BIND_ADDRESS:-127.0.0.1}:${MOCKOON_PORT:-3000}:3000"
+    volumes:
+      - type: bind
+        source: ${MOCKOON_CONFIG_DIR:-./data}
+        target: /data
+        read_only: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          wget -q --header="Authorization: Bearer $$MOCKOON_ADMIN_API_TOKEN"
+          -O /dev/null http://127.0.0.1:3000/mockoon-admin/logs || exit 1
+      interval: 10s
+      timeout: 4s
+      retries: 6
+      start_period: 10s
+    environment:
+      MOCKOON_ADMIN_API_TOKEN: ${MOCKOON_ADMIN_API_TOKEN:-mockoon-local-admin-change-me}
+    networks:
+      - mockoon-internal
+
+  studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mockoon-live-studio:local
+    restart: unless-stopped
+    depends_on:
+      mockoon:
+        condition: service_healthy
+    ports:
+      - "${STUDIO_BIND_ADDRESS:-127.0.0.1}:${STUDIO_PORT:-4173}:4173"
+    environment:
+      STUDIO_HOST: 0.0.0.0
+      STUDIO_PORT: 4173
+      MOCKOON_DATA_FILE: /data/${MOCKOON_CONFIG_FILE:-sample-environment.json}
+      MOCKOON_ADMIN_URL: http://mockoon:3000
+      MOCKOON_ADMIN_TOKEN: ${MOCKOON_ADMIN_API_TOKEN:-mockoon-local-admin-change-me}
+      MOCKOON_AUTO_PUSH: "true"
+      STUDIO_HISTORY_DIR: /app/.history
+    volumes:
+      - type: bind
+        source: ${MOCKOON_CONFIG_DIR:-./data}
+        target: /data
+      - studio-history:/app/.history
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:4173/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - mockoon-internal
+
+volumes:
+  studio-history:
+
+networks:
+  mockoon-internal:
+    driver: bridge

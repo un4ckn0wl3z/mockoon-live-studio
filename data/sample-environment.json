@@ -1,0 +1,89 @@
+{
+  "uuid": "2b8f4ec5-e578-476c-90eb-7ca391b6cf34",
+  "lastMigration": 39,
+  "name": "Storefront API",
+  "endpointPrefix": "api",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "0.0.0.0",
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "proxyReqHeaders": [],
+  "proxyResHeaders": [],
+  "routes": [
+    {
+      "uuid": "a4c2c34f-6e9b-4b3d-8d3c-5dc8a2f284dd",
+      "type": "http",
+      "documentation": "Returns the product catalog.",
+      "method": "get",
+      "endpoint": "products",
+      "responses": [
+        {
+          "uuid": "d5b33c96-4741-470f-a2da-7a611f90a72b",
+          "body": "{\n  \"items\": [\n    { \"id\": 1, \"name\": \"Mechanical keyboard\", \"price\": 129 },\n    { \"id\": 2, \"name\": \"Studio headphones\", \"price\": 89 }\n  ],\n  \"total\": 2\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": ""
+        }
+      ]
+    },
+    {
+      "uuid": "cf88fa74-e346-4194-a317-b0ac833dde0e",
+      "type": "http",
+      "documentation": "Creates a new product.",
+      "method": "post",
+      "endpoint": "products",
+      "responses": [
+        {
+          "uuid": "1958c10a-7f67-4ae4-8cdc-df3bd3b3bf04",
+          "body": "{\n  \"id\": {{faker 'number.int' min=100 max=999}},\n  \"created\": true\n}",
+          "latency": 150,
+          "statusCode": 201,
+          "label": "Created",
+          "headers": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": ""
+        }
+      ]
+    }
+  ],
+  "rootChildren": [
+    { "type": "route", "uuid": "a4c2c34f-6e9b-4b3d-8d3c-5dc8a2f284dd" },
+    { "type": "route", "uuid": "cf88fa74-e346-4194-a317-b0ac833dde0e" }
+  ],
+  "data": [],
+  "callbacks": []
+}

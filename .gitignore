@@ -1,0 +1,7 @@
+.history/
+data/*.json
+!data/sample-environment.json
+.env
+.test-runtime/
+*.tmp
+

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0d12" />
+    <title>Mockoon Live Studio</title>
+    <link rel="stylesheet" href="/styles.css?v=1.0.1" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span></div>
+          <div>
+            <div class="brand-title">Mockoon <b>Live Studio</b></div>
+            <div class="brand-subtitle" id="data-file-label">Loading environment…</div>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="runtime-status disconnected" id="runtime-status" title="Mockoon CLI connection status">
+            <span class="status-dot"></span>
+            <span id="runtime-status-text">Checking runtime</span>
+          </div>
+          <button class="button subtle" id="history-button" type="button" title="Version history">
+            <span class="icon">↶</span><span>History</span>
+          </button>
+          <button class="button subtle" id="import-button" type="button">
+            <span class="icon">⇩</span><span>Import</span>
+          </button>
+          <button class="button subtle" id="export-button" type="button">
+            <span class="icon">⇧</span><span>Export</span>
+          </button>
+          <button class="button subtle square" id="settings-button" type="button" aria-label="Environment settings">⚙</button>
+          <button class="button primary" id="push-button" type="button">
+            <span class="push-pulse"></span><span>Push live</span>
+          </button>
+          <input id="file-input" type="file" accept="application/json,.json" hidden />
+        </div>
+      </header>
+
+      <aside class="sidebar">
+        <div class="sidebar-heading">
+          <div>
+            <span class="eyebrow">Environment</span>
+            <h1 id="environment-name">—</h1>
+          </div>
+          <button class="icon-button" id="add-route-button" type="button" aria-label="Add route" title="Add route">+</button>
+        </div>
+
+        <label class="search-box">
+          <span>⌕</span>
+          <input id="route-search" type="search" placeholder="Filter routes…" autocomplete="off" />
+          <kbd id="route-count">0</kbd>
+        </label>
+
+        <nav class="route-list" id="route-list" aria-label="Routes"></nav>
+
+        <div class="sidebar-footer">
+          <button class="raw-editor-button" id="raw-editor-button" type="button">
+            <span class="code-icon">{ }</span>
+            <span><b>Raw environment JSON</b><small>Advanced editor · preserves every field</small></span>
+            <span>›</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="workspace" id="workspace">
+        <section class="editor-panel" id="route-editor">
+          <div class="route-header">
+            <div class="route-address">
+              <select id="route-method" class="method-select get" aria-label="HTTP method">
+                <option value="get">GET</option>
+                <option value="post">POST</option>
+                <option value="put">PUT</option>
+                <option value="patch">PATCH</option>
+                <option value="delete">DELETE</option>
+                <option value="head">HEAD</option>
+                <option value="options">OPTIONS</option>
+              </select>
+              <div class="endpoint-input-wrap">
+                <span id="endpoint-prefix">/api/</span>
+                <input id="route-endpoint" type="text" spellcheck="false" aria-label="Route endpoint" />
+              </div>
+            </div>
+            <div class="route-actions">
+              <span class="save-state" id="save-state"><i></i><span>Saved</span></span>
+              <button class="button danger-ghost" id="delete-route-button" type="button">Delete route</button>
+            </div>
+          </div>
+
+          <div class="route-meta">
+            <label>
+              <span>Description</span>
+              <input id="route-documentation" type="text" placeholder="What does this endpoint do?" />
+            </label>
+          </div>
+
+          <div class="editor-layout">
+            <aside class="response-sidebar">
+              <div class="section-title-row">
+                <span class="section-title">Responses</span>
+                <button id="add-response-button" class="mini-button" type="button">＋ Add</button>
+              </div>
+              <div id="response-list" class="response-list"></div>
+            </aside>
+
+            <section class="response-editor">
+              <div class="response-toolbar">
+                <div class="field compact status-field">
+                  <label for="response-status">Status</label>
+                  <input id="response-status" type="number" min="100" max="599" />
+                </div>
+                <div class="field compact grow">
+                  <label for="response-label">Label</label>
+                  <input id="response-label" type="text" placeholder="e.g. Success" />
+                </div>
+                <div class="field compact latency-field">
+                  <label for="response-latency">Latency</label>
+                  <div class="input-suffix"><input id="response-latency" type="number" min="0" /><span>ms</span></div>
+                </div>
+                <label class="switch-field" title="Use as the default response">
+                  <span>Default</span>
+                  <input id="response-default" type="checkbox" />
+                  <i></i>
+                </label>
+                <button class="icon-button danger" id="delete-response-button" type="button" aria-label="Delete response">×</button>
+              </div>
+
+              <div class="tabs" role="tablist">
+                <button class="tab active" data-tab="body" type="button">Body</button>
+                <button class="tab" data-tab="headers" type="button">Headers <span id="headers-count">0</span></button>
+                <button class="tab" data-tab="rules" type="button">Rules <span id="rules-count">0</span></button>
+                <button class="tab" data-tab="options" type="button">Options</button>
+              </div>
+
+              <div class="tab-panel active" data-panel="body">
+                <div class="code-toolbar">
+                  <div class="segmented" aria-label="Response body type">
+                    <button class="active" data-body-type="INLINE" type="button">Inline</button>
+                    <button data-body-type="FILE" type="button">File</button>
+                    <button data-body-type="DATABUCKET" type="button">Data bucket</button>
+                  </div>
+                  <div>
+                    <button class="text-button" id="format-json-button" type="button">Format JSON</button>
+                    <button class="text-button" id="copy-body-button" type="button">Copy</button>
+                  </div>
+                </div>
+                <div id="inline-body-editor" class="code-editor-wrap">
+                  <div class="line-numbers" id="body-line-numbers">1</div>
+                  <textarea id="response-body" spellcheck="false" aria-label="Response body"></textarea>
+                  <span class="json-status" id="json-status">JSON</span>
+                </div>
+                <div id="file-body-editor" class="alternate-body-editor hidden">
+                  <label class="field"><span>File path</span><input id="response-file-path" type="text" placeholder="/data/response.json" /></label>
+                  <p>The path is resolved by the Mockoon CLI process. Files are not uploaded by Live Studio.</p>
+                </div>
+                <div id="bucket-body-editor" class="alternate-body-editor hidden">
+                  <label class="field"><span>Data bucket ID</span><input id="response-bucket-id" type="text" placeholder="Select or paste a bucket UUID" /></label>
+                  <p>Use the UUID of an existing data bucket in this environment.</p>
+                </div>
+              </div>
+
+              <div class="tab-panel" data-panel="headers">
+                <div class="table-toolbar"><p>Headers returned with this response.</p><button class="mini-button" id="add-header-button" type="button">＋ Add header</button></div>
+                <div class="kv-table" id="headers-table"></div>
+              </div>
+
+              <div class="tab-panel" data-panel="rules">
+                <div class="table-toolbar">
+                  <p>Serve this response when request values match.</p>
+                  <div class="inline-actions">
+                    <select id="rules-operator" class="small-select"><option value="OR">Match any (OR)</option><option value="AND">Match all (AND)</option></select>
+                    <button class="mini-button" id="add-rule-button" type="button">＋ Add rule</button>
+                  </div>
+                </div>
+                <div class="rule-table" id="rules-table"></div>
+              </div>
+
+              <div class="tab-panel" data-panel="options">
+                <div class="option-grid">
+                  <label class="check-card"><input id="disable-templating" type="checkbox" /><span><b>Disable templating</b><small>Return the body without evaluating Handlebars helpers.</small></span></label>
+                  <label class="check-card"><input id="fallback-404" type="checkbox" /><span><b>Fallback to 404</b><small>Return 404 when no response rule matches.</small></span></label>
+                  <label class="check-card"><input id="send-file-as-body" type="checkbox" /><span><b>Send file as body</b><small>Read the selected file and send its contents.</small></span></label>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="empty-state hidden" id="empty-state">
+          <div class="empty-illustration"><span>GET</span><i></i><i></i><i></i></div>
+          <h2>No route selected</h2>
+          <p>Create an endpoint or select one from the sidebar.</p>
+          <button class="button primary" id="empty-add-route" type="button">Create first route</button>
+        </section>
+
+        <section class="raw-panel hidden" id="raw-panel">
+          <div class="raw-panel-header">
+            <div><span class="eyebrow">Advanced editor</span><h2>Raw environment JSON</h2><p>Edit unsupported Mockoon properties without losing them.</p></div>
+            <div><button class="button subtle" id="raw-cancel-button" type="button">Back to routes</button><button class="button primary" id="raw-apply-button" type="button">Apply JSON</button></div>
+          </div>
+          <textarea id="raw-json-editor" spellcheck="false"></textarea>
+        </section>
+      </main>
+
+      <section class="log-drawer collapsed" id="log-drawer">
+        <button class="log-drawer-handle" id="log-toggle" type="button">
+          <span><i class="live-dot"></i><b>Live traffic</b><em id="log-count">0 requests</em></span>
+          <span class="chevron">⌃</span>
+        </button>
+        <div class="log-content">
+          <div class="log-toolbar"><span>Incoming requests from Mockoon Admin API</span><button class="text-button" id="clear-logs-button" type="button">Clear view</button></div>
+          <div class="log-list" id="log-list"><div class="log-empty">Waiting for requests…</div></div>
+        </div>
+      </section>
+    </div>
+
+    <dialog id="settings-dialog" class="dialog">
+      <form method="dialog" id="settings-form">
+        <div class="dialog-header"><div><span class="eyebrow">Configuration</span><h2>Environment settings</h2></div><button class="dialog-close" value="cancel" aria-label="Close">×</button></div>
+        <div class="dialog-body">
+          <div class="form-section">
+            <h3>Mock environment</h3>
+            <div class="form-grid">
+              <label class="field span-2"><span>Name</span><input id="settings-name" type="text" required /></label>
+              <label class="field"><span>Hostname</span><input id="settings-hostname" type="text" /></label>
+              <label class="field"><span>Port</span><input id="settings-port" type="number" min="1" max="65535" /></label>
+              <label class="field"><span>Endpoint prefix</span><input id="settings-prefix" type="text" placeholder="api/v1" /></label>
+              <label class="field"><span>Global latency</span><div class="input-suffix"><input id="settings-latency" type="number" min="0" /><span>ms</span></div></label>
+            </div>
+          </div>
+          <div class="form-section">
+            <h3>Live connection</h3>
+            <p class="section-copy">Connect to a running Mockoon CLI Admin API. The token is kept in server memory only.</p>
+            <div class="form-grid">
+              <label class="field span-2"><span>Mockoon base URL</span><input id="settings-admin-url" type="url" placeholder="http://127.0.0.1:3000" /></label>
+              <label class="field span-2"><span>Admin bearer token</span><input id="settings-admin-token" type="password" placeholder="Paste token" autocomplete="off" /></label>
+              <label class="check-card span-2"><input id="settings-auto-push" type="checkbox" /><span><b>Push every saved change live</b><small>Updates the running environment after the local file is saved.</small></span></label>
+            </div>
+          </div>
+        </div>
+        <div class="dialog-footer"><button class="button subtle" value="cancel">Cancel</button><button class="button primary" id="save-settings-button" value="default">Save settings</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="history-dialog" class="dialog history-dialog">
+      <div class="dialog-header"><div><span class="eyebrow">Recovery</span><h2>Version history</h2></div><button class="dialog-close" id="history-close" aria-label="Close">×</button></div>
+      <div class="dialog-body"><div id="history-list" class="history-list"><div class="loading-row">Loading history…</div></div></div>
+    </dialog>
+
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+    <script type="module" src="/app.js?v=1.0.1"></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+.git
+.gitignore
+.history
+.test-runtime
+node_modules
+npm-debug.log*
+compose*.yaml
+.env
+.env.*
+test
+coverage
